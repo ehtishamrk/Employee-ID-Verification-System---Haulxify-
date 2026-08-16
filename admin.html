@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#102f55">
+  <title>Admin Portal — HAULXIFY</title>
+  <link rel="icon" href="assets/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <section id="loginView" class="panel auth-panel">
+      <div class="brand-row">
+        <img src="assets/logo.webp" alt="HAULXIFY">
+        <div class="brand-text"><strong>HAULXIFY</strong><span>Admin Portal</span></div>
+      </div>
+      <h1>Employee ID Management</h1>
+      <p class="muted">Authorized administrators only.</p>
+
+      <form id="loginForm" class="form-grid">
+        <label class="full">Email
+          <input id="email" type="email" autocomplete="username" required>
+        </label>
+        <label class="full">Password
+          <input id="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn primary full" type="submit">Sign in</button>
+      </form>
+      <div id="loginError" class="error hidden"></div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <header class="topbar">
+        <div class="brand-row">
+          <img src="assets/logo.webp" alt="HAULXIFY">
+          <div class="brand-text"><strong>HAULXIFY</strong><span>Admin Portal</span></div>
+        </div>
+        <div class="top-actions">
+          <span id="adminEmail" class="muted"></span>
+          <button id="logoutBtn" class="btn ghost">Sign out</button>
+        </div>
+      </header>
+
+      <div id="statsBar" class="stats-bar"></div>
+
+      <div class="dashboard-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Issue / Manage Card</h2>
+              <p class="muted">A new card receives a fresh 256-bit random QR token.</p>
+            </div>
+            <button id="resetBtn" class="btn ghost" type="button">New card</button>
+          </div>
+
+          <div id="editingBanner" class="editing-banner hidden">
+            <span>Editing card for <strong id="editingName"></strong></span>
+            <button id="cancelEditBtn" type="button">Cancel</button>
+          </div>
+
+          <form id="cardForm" class="form-grid">
+            <input id="editingToken" type="hidden">
+
+            <label>Full Name *
+              <input id="name" required maxlength="100">
+            </label>
+            <label>Designation *
+              <input id="designation" required maxlength="100">
+            </label>
+            <label>Employee ID Number *
+              <input id="employeeId" required maxlength="50">
+            </label>
+            <label>Department *
+              <input id="department" required maxlength="100">
+            </label>
+            <label>Phone Number
+              <input id="phone" maxlength="30">
+            </label>
+            <label>Emergency Number
+              <input id="emergencyNumber" maxlength="30">
+            </label>
+            <label>Joining Date
+              <input id="joiningDate" type="date">
+            </label>
+            <label>Card Issue Date *
+              <input id="issueDate" type="date" required>
+            </label>
+            <label>Expiry Date
+              <input id="expiryDate" type="date" readonly>
+            </label>
+            <label>Shift Timings
+              <input id="shiftTimings" maxlength="100" placeholder="09:00 AM – 06:00 PM">
+            </label>
+            <label>Blood Group
+              <select id="bloodGroup">
+                <option value="">Select</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option>
+                <option>O+</option><option>O-</option>
+              </select>
+            </label>
+            <label class="full">Home Address
+              <textarea id="homeAddress" rows="3" maxlength="500"></textarea>
+            </label>
+            <label class="full">Employee Photo (optional)
+              <input id="photo" type="file" accept="image/*">
+              <small class="muted">Stored as resized Base64 in Firestore. Keep it under the built-in size limit.</small>
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn primary" type="submit">Issue Card</button>
+              <button id="deleteBtn" class="btn danger hidden" type="button">Delete Card Permanently</button>
+            </div>
+          </form>
+          <div id="formMessage" class="notice hidden"></div>
+        </section>
+
+        <section class="panel qr-panel">
+          <div class="panel-head">
+            <div>
+              <h2>QR Code</h2>
+              <p class="muted">High-resolution, print-ready. Place it on your Canva ID card.</p>
+            </div>
+          </div>
+          <div id="qrEmpty" class="empty">Issue or select a card to generate its QR code.</div>
+          <div id="qrArea" class="hidden">
+            <div class="qr-frame">
+              <div id="qrCode" class="qr-box"></div>
+            </div>
+            <div class="qr-link-row">
+              <span id="qrLink" class="qr-link"></span>
+            </div>
+            <div class="qr-actions">
+              <button id="copyLinkBtn" class="btn subtle small" type="button">Copy link</button>
+              <button id="downloadQrBtn" class="btn primary small" type="button">Download PNG</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Cards</h2>
+            <p class="muted">Public verification is allowed only for an active, unexpired card token.</p>
+          </div>
+          <input id="search" class="search" placeholder="Search name or employee ID">
+        </div>
+        <div id="cardsTable" class="table-wrap"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

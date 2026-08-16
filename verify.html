@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b1f38">
+  <meta name="description" content="Secure digital identity verification for HAULXIFY employees.">
+  <title>Verify Employee — HAULXIFY</title>
+  <link rel="icon" href="assets/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="verify-body">
+  <main class="verify-shell">
+    <section class="verify-card">
+      <div class="badge-header">
+        <div class="badge-brand">
+          <img class="badge-logo" src="assets/logo.webp" alt="">
+          <div class="badge-brand-text">
+            <strong>HAULXIFY</strong>
+            <span>Secure Employee Verification</span>
+          </div>
+        </div>
+        <div class="badge-photo-ring">
+          <div class="badge-photo-fallback skeleton" id="photoSkeleton"></div>
+        </div>
+      </div>
+
+      <div id="state" class="state">
+        <div class="skeleton skeleton-line" style="width:52%;height:19px;margin:10px auto 8px"></div>
+        <div class="skeleton skeleton-line" style="width:34%;height:13px;margin-bottom:24px"></div>
+        <div class="skeleton-grid">
+          <div class="skeleton skeleton-box"></div>
+          <div class="skeleton skeleton-box"></div>
+          <div class="skeleton skeleton-box"></div>
+          <div class="skeleton skeleton-box"></div>
+        </div>
+        <p class="state-caption">Checking card against HAULXIFY records…</p>
+      </div>
+
+      <div id="employee" class="employee hidden"></div>
+      <div id="error" class="error-state hidden"></div>
+
+      <div id="footer" class="verify-footer hidden">
+        <span class="footer-brand">HAULXIFY Secure ID</span>
+        <span id="verifiedAt"></span>
+      </div>
+    </section>
+
+    <p class="verify-disclaimer">This page confirms employment identity only. It does not grant physical, network, or system access.</p>
+  </main>
+
+  <script type="module" src="js/verify.js"></script>
+</body>
+</html>
