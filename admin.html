@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#102f55">
+  <title>Admin Portal — HAULXIFY</title>
+  <link rel="icon" href="assets/logo-sm.webp">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <section id="loginView" class="panel auth-panel">
+      <div class="brand-row">
+        <img src="assets/logo-sm.webp" alt="HAULXIFY">
+        <div class="brand-text"><strong>HAULXIFY</strong><span>Admin Portal</span></div>
+      </div>
+      <h1>Employee ID Management</h1>
+      <p class="muted">Authorized administrators only.</p>
+
+      <form id="loginForm" class="form-grid">
+        <label class="full">Email
+          <input id="email" type="email" autocomplete="username" required>
+        </label>
+        <label class="full">Password
+          <input id="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn primary full" type="submit">Sign in</button>
+      </form>
+      <div id="loginError" class="error hidden"></div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <header class="topbar">
+        <div class="brand-row">
+          <img src="assets/logo-sm.webp" alt="HAULXIFY">
+          <div class="brand-text"><strong>HAULXIFY</strong><span>Admin Portal</span></div>
+        </div>
+        <div class="top-actions">
+          <span id="adminEmail" class="muted"></span>
+          <button id="logoutBtn" class="btn ghost">Sign out</button>
+        </div>
+      </header>
+
+      <div id="statsBar" class="stats-bar"></div>
+
+      <div id="employeeSection">
+      <div class="dashboard-grid">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Issue / Manage Card</h2>
+              <p class="muted">A new card receives a fresh 256-bit random QR token.</p>
+            </div>
+            <button id="resetBtn" class="btn ghost" type="button">New card</button>
+          </div>
+
+          <div id="editingBanner" class="editing-banner hidden">
+            <span>Editing card for <strong id="editingName"></strong></span>
+            <button id="cancelEditBtn" type="button">Cancel</button>
+          </div>
+
+          <form id="cardForm" class="form-grid">
+            <input id="editingToken" type="hidden">
+
+            <label>Full Name *
+              <input id="name" required maxlength="100">
+            </label>
+            <label>Designation *
+              <input id="designation" required maxlength="100">
+            </label>
+            <label>Employee ID Number *
+              <input id="employeeId" required maxlength="50">
+            </label>
+            <label>Department *
+              <input id="department" required maxlength="100">
+            </label>
+            <label>Phone Number
+              <input id="phone" maxlength="30">
+            </label>
+            <label>Emergency Number
+              <input id="emergencyNumber" maxlength="30">
+            </label>
+            <label>Joining Date
+              <input id="joiningDate" type="date">
+            </label>
+            <label>Card Issue Date *
+              <input id="issueDate" type="date" required>
+            </label>
+            <label>Expiry Date
+              <input id="expiryDate" type="date" readonly>
+            </label>
+            <label>Shift Timings
+              <input id="shiftTimings" maxlength="100" placeholder="09:00 AM – 06:00 PM">
+            </label>
+            <label>Blood Group
+              <select id="bloodGroup">
+                <option value="">Select</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option>
+                <option>O+</option><option>O-</option>
+              </select>
+            </label>
+            <label class="full">Home Address
+              <textarea id="homeAddress" rows="3" maxlength="500"></textarea>
+            </label>
+            <label class="full">Employee Photo (optional)
+              <input id="photo" type="file" accept="image/*">
+              <small class="muted">Stored as resized Base64 in Firestore. Keep it under the built-in size limit.</small>
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn primary" type="submit">Issue Card</button>
+              <button id="deleteBtn" class="btn danger hidden" type="button">Delete Card Permanently</button>
+            </div>
+          </form>
+          <div id="formMessage" class="notice hidden"></div>
+        </section>
+
+        <section class="panel qr-panel">
+          <div class="panel-head">
+            <div>
+              <h2>QR Code</h2>
+              <p class="muted">High-resolution, print-ready. Place it on your Canva ID card.</p>
+            </div>
+          </div>
+          <div id="qrEmpty" class="empty">Issue or select a card to generate its QR code.</div>
+          <div id="qrArea" class="hidden">
+            <div class="qr-frame">
+              <div id="qrCode" class="qr-box"></div>
+            </div>
+            <div class="qr-link-row">
+              <span id="qrLink" class="qr-link"></span>
+            </div>
+            <div class="qr-actions">
+              <button id="copyLinkBtn" class="btn subtle small" type="button">Copy link</button>
+              <button id="downloadQrBtn" class="btn primary small" type="button">Download PNG</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Cards</h2>
+            <p class="muted">Public verification is allowed only for an active, unexpired card token.</p>
+          </div>
+          <input id="search" class="search" placeholder="Search name or employee ID">
+        </div>
+        <div id="cardsTable" class="table-wrap"></div>
+      </section>
+      </div>
+
+      <div id="visitorSection">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Visitor Passes</h2>
+              <p class="muted">18 fixed physical badges. Each QR only identifies the pass — no visitor data is stored on it. Download once, print, laminate.</p>
+            </div>
+          </div>
+          <div id="passGrid" class="pass-grid"></div>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Issue a Pass</h2>
+                <p class="muted">Fallback to the scan flow on Verify — use this when a scanner isn't handy.</p>
+              </div>
+            </div>
+            <form id="issuePassFormAdmin" class="form-grid">
+              <label class="full">Pass Number *
+                <select id="vpPassId" required></select>
+              </label>
+              <label class="full host-picker">Host Employee (who they're visiting) *
+                <input id="vpHostSearch" placeholder="Search by name or employee ID" autocomplete="off" required>
+              </label>
+              <div id="vpHostResults" class="host-results-list full"></div>
+              <input type="hidden" id="vpHostToken">
+              <input type="hidden" id="vpHostName">
+              <input type="hidden" id="vpHostDept">
+
+              <label class="full">Visitor Name *<input id="vpVisitorName" required maxlength="100"></label>
+              <label>ID Type *
+                <select id="vpIdType" required>
+                  <option value="cnic">CNIC</option>
+                  <option value="license">Driving License</option>
+                  <option value="passport">Passport</option>
+                </select>
+              </label>
+              <label>ID Number *<input id="vpIdNumber" required maxlength="60"></label>
+              <label class="full">Phone Number<input id="vpPhone" type="tel" maxlength="30"></label>
+              <label class="full">Purpose of Visit *<input id="vpPurpose" required maxlength="150"></label>
+
+              <div class="form-actions full">
+                <button type="submit" class="btn primary full">Issue Pass</button>
+              </div>
+            </form>
+            <div id="issuePassAdminMessage" class="notice hidden"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Active Visits</h2>
+                <p class="muted">Currently checked-in visitors, oldest first.</p>
+              </div>
+            </div>
+            <div id="activeVisitsTable" class="visit-table-wrap"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="adminModalOverlay" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="adminModalClose" class="modal-close" type="button" aria-label="Close">&times;</button>
+      <div id="adminModalContent"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

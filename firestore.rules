@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isReceptionist() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/receptionists/$(request.auth.uid));
+    }
+
+    // Full admins can do everything a receptionist can, plus manage employee cards.
+    function isStaff() {
+      return isAdmin() || isReceptionist();
+    }
+
+    // Admin allowlist: create this document manually in Firebase Console:
+    // admins/{THE_ADMIN_UID}
+    match /admins/{uid} {
+      allow read: if isAdmin() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Receptionist allowlist — visitor-pass access only, no employee-card
+    // management rights. Create manually in Firebase Console:
+    // receptionists/{THE_RECEPTIONIST_UID}
+    match /receptionists/{uid} {
+      allow read: if isStaff() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /cards/{token} {
+      // PUBLIC VERIFICATION:
+      // - exact document lookup only; collection listing is never allowed
+      // - token must be high entropy
+      // - card must be active
+      // - expiry must be current
+      allow get: if isAdmin()
+                 || (token.matches('^[A-Za-z0-9_-]{40,50}$')
+                     && resource.data.status == 'active'
+                     && resource.data.expiryAt >= request.time);
+
+      // Receptionists may list/search active employees to identify a visitor's
+      // host, but cannot see this via list unless they're staff — and only
+      // admins can write (issue/freeze/cancel/delete) a card.
+      allow list: if isStaff();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 18 fixed, reusable physical visitor-pass badges (doc IDs "01".."18").
+    // Never publicly readable — pass docs and the visits they reference can
+    // carry a visitor's name/ID number/phone, so both are staff-only, always.
+    match /passes/{passId} {
+      allow get, list, update: if isStaff();
+      // Only admins seed/remove the fixed set of 18 badges.
+      allow create, delete: if isAdmin();
+    }
+
+    // One document per visit: created when a pass is issued, updated once
+    // when the visitor checks out (timeOut set). Never publicly readable.
+    match /visits/{visitId} {
+      allow get, list, create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
